@@ -4,7 +4,70 @@ import analogio
 import pwmio
 import busio
 import time
+import wifi
+import socketpool
+import json
+import adafruit_minimqtt.adafruit_minimqtt as MQTT
 from adafruit_motor import servo
+
+# Configuración de RED
+SSID = "wfrre-Docentes"  # revisa que no tenga doble espacio
+PASSWORD = "20$tscFrre.24"
+BROKER = "10.13.100.154"
+NOMBRE_EQUIPO = "Punteros_Locos"
+DISCOVERY_TOPIC = "descubrir"
+TOPIC = f"sensores/{NOMBRE_EQUIPO}"
+
+print(f"Intentando conectar a {SSID}...")
+try:
+    wifi.radio.connect(SSID, PASSWORD)
+    print(f"Conectado a {SSID}")
+    print(f"Dirección IP: {wifi.radio.ipv4_address}")
+except Exception as e:
+    print(f"Error al conectar a WiFi: {e}")
+    while True:
+        pass 
+
+# Configuración MQTT 
+pool = socketpool.SocketPool(wifi.radio)
+
+def connect(client, userdata, flags, rc):
+    print("Conectado al broker MQTT")
+    client.publish(DISCOVERY_TOPIC, "conectado desde Pico")
+    client.publish(DISCOVERY_TOPIC, json.dumps({
+        "equipo": NOMBRE_EQUIPO,
+        "magnitudes": ["inclinacion", "joystick"]
+    }))
+    mqtt_client.publish("sensores/inclinacion/inclinacion", "Hola desde Pico")
+
+mqtt_client = MQTT.MQTT(
+    broker=BROKER,
+    port=1883,
+    socket_pool=pool
+)
+mqtt_client.on_connect = connect
+mqtt_client.connect()
+
+# Usamos estas varaibles globales para controlar cada cuanto publicamos
+LAST_PUB = 0
+PUB_INTERVAL = 1  
+
+def publish():
+    global LAST_PUB
+    now = time.monotonic()
+    if now - LAST_PUB >= PUB_INTERVAL:
+        try:
+            temp_topic = f"{TOPIC}/inclinacion"
+            mqtt_client.publish(temp_topic, str(inclinacion.value))
+            
+            joy_topic = f"{TOPIC}/joystick"
+            mqtt_client.publish(joy_topic, str(leer_joystick()))
+
+            print(f"Publicado -> inclinacion: {inclinacion.value}, joystick: {leer_joystick()}")
+            LAST_PUB = now
+        except Exception as e:
+            print(f"Error publicando MQTT: {e}")
+
 
 # --- Sensores ---
 joystick = analogio.AnalogIn(board.A0)   # Eje del joystick
@@ -47,6 +110,9 @@ def aplicar_pwm(porcentaje):
 
 while True:
 
+    mqtt_client.loop() 
+    publish()  
+
     # --- Chequear emergencia ---
     if not inclinacion.value:  # Sensor detecta inclinación
         modo_emergencia = True
@@ -66,7 +132,6 @@ while True:
     # --- Lectura de joystick ---
     valor_manual = leer_joystick()
 
-    if valor_manual > 5:  # Si el joystick se mueve, prioridad manual
-        aplicar_pwm(valor_manual)
+    aplicar_pwm(valor_manual)
 
     time.sleep(0.05)
