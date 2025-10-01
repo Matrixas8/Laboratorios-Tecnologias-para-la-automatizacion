@@ -58,10 +58,10 @@ def publish():
     if now - LAST_PUB >= PUB_INTERVAL:
         try:
             temp_topic = f"{TOPIC}/inclinacion"
-            mqtt_client.publish(temp_topic, str(inclinacion.value))
+            mqtt_client.publish(temp_topic, str(inclinacion.value).lower())
             
             joy_topic = f"{TOPIC}/joystick"
-            mqtt_client.publish(joy_topic, str(leer_joystick()))
+            mqtt_client.publish(joy_topic, str(leer_joystick())
 
             print(f"Publicado -> inclinacion: {inclinacion.value}, joystick: {leer_joystick()}")
             LAST_PUB = now
