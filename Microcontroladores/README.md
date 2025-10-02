@@ -8,7 +8,7 @@ En las cabinas hay una compuerta que regula la apertura para evacuar vapores, y 
 La compuerta se abre o se cierra según el valor de presión de los vapores.
 Como la cabina se desplaza por todo el taller, es importante asegurarse de que no quede inclinada por irregularidades del piso. Si esto ocurre, se activa un LED rojo y el relé corta el extractor inmediatamente.
 
-##El LED bicolor indica el estado del sistema:
+## El LED bicolor indica el estado del sistema:
 
 Verde → Operación normal
 Rojo → Emergencia
@@ -21,7 +21,7 @@ Modos de operación de la compuerta:
 Sensor de presión: un sensor de presión controla el valor de apertura de la compuerta según este valor sea mayor o menor.
 
 
-##Cambio de estado y prioridades:
+## Cambio de estado y prioridades:
 
 Emergencia: Siempre tiene máxima prioridad.
 
@@ -29,7 +29,7 @@ Si la cabina detecta inclinación irregular, se enciende el LED rojo y el relé 
 En este estado, la compuerta no responde al sensor de presión hasta que se resuelva la emergencia.
 
 
-##Control de la compuerta vía PWM:
+## Control de la compuerta vía PWM:
 
 El valor del sensor de presión será simulado con un joystick para efectos académicos.
 El valor de apertura se traduce a un duty cycle del PWM del conversor de corriente.
@@ -41,13 +41,13 @@ Por ejemplo:
 Esto garantiza un control preciso de la posición de la compuerta.
 
 
-##Indicadores y seguridad:
+## Indicadores y seguridad:
 
-###LED bicolor:
+### LED bicolor:
 Verde → Operación normal, sin alerta.
 Rojo → Emergencia (cabina inclinada o cualquier fallo crítico).
 
-###Relé del extractor:
+### Relé del extractor:
 Activado → extractor encendido.
 Desactivado → corte inmediato en caso de emergencia.
 
