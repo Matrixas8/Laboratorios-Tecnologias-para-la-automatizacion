@@ -13,9 +13,9 @@ from adafruit_motor import servo
 
 
 # Configuración de RED
-SSID = "Redmi 12C"  # revisa que no tenga doble espacio
-PASSWORD = "mapatipiaspas"
-BROKER = "10.116.224.23"
+SSID = "Wifi"  # revisa que no tenga doble espacio
+PASSWORD = "contraseña-wifi"
+BROKER = "ipv4 del broker"
 NOMBRE_EQUIPO = "Punteros_Locos"
 DISCOVERY_TOPIC = "descubrir"
 TOPIC = f"sensores/{NOMBRE_EQUIPO}"
@@ -38,7 +38,7 @@ def connect(client, userdata, flags, rc):
     client.publish(DISCOVERY_TOPIC, "conectado desde Pico")
     client.publish(DISCOVERY_TOPIC, json.dumps({
         "equipo": NOMBRE_EQUIPO,
-        "magnitudes": ["inclinacion", "joystick"]
+        "magnitudes": ["inclinacion", "presion"]
     }))
     mqtt_client.publish("sensores/inclinacion/inclinacion", "Hola desde Pico")
 
@@ -62,10 +62,10 @@ def publish():
             temp_topic = f"{TOPIC}/inclinacion"
             mqtt_client.publish(temp_topic, str(inclinacion.value).lower())
             
-            joy_topic = f"{TOPIC}/joystick"
+            joy_topic = f"{TOPIC}/presion"
             mqtt_client.publish(joy_topic, str(leer_joystick()))
 
-            print(f"Publicado -> inclinacion: {inclinacion.value}, joystick: {leer_joystick()}")
+            print(f"Publicado -> inclinacion: {inclinacion.value}, presion: {leer_joystick()}")
             LAST_PUB = now
         except Exception as e:
             print(f"Error publicando MQTT: {e}")
@@ -165,6 +165,6 @@ while True:
         valor_usado = setpoint
 
     # --- Monitoreo serial ---
-    print(f"Modo: {modo} | Joystick: {valor_manual}% | Setpoint: {setpoint}% | Aplicado: {valor_usado}%")
+    print(f"Modo: {modo} Presion: {valor_manual}% | Setpoint: {setpoint}% | Compuerta: {valor_usado}%")
 
     time.sleep(0.1)
