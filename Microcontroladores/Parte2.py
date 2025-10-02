@@ -6,14 +6,16 @@ import busio
 import time
 import wifi
 import socketpool
+import supervisor
 import json
 import adafruit_minimqtt.adafruit_minimqtt as MQTT
 from adafruit_motor import servo
 
+
 # Configuración de RED
-SSID = "wfrre-Docentes"  # revisa que no tenga doble espacio
-PASSWORD = "20$tscFrre.24"
-BROKER = "10.13.100.154"
+SSID = "Redmi 12C"  # revisa que no tenga doble espacio
+PASSWORD = "mapatipiaspas"
+BROKER = "10.116.224.23"
 NOMBRE_EQUIPO = "Punteros_Locos"
 DISCOVERY_TOPIC = "descubrir"
 TOPIC = f"sensores/{NOMBRE_EQUIPO}"
@@ -61,13 +63,12 @@ def publish():
             mqtt_client.publish(temp_topic, str(inclinacion.value).lower())
             
             joy_topic = f"{TOPIC}/joystick"
-            mqtt_client.publish(joy_topic, str(leer_joystick())
+            mqtt_client.publish(joy_topic, str(leer_joystick()))
 
             print(f"Publicado -> inclinacion: {inclinacion.value}, joystick: {leer_joystick()}")
             LAST_PUB = now
         except Exception as e:
             print(f"Error publicando MQTT: {e}")
-
 
 # --- Sensores ---
 joystick = analogio.AnalogIn(board.A0)   # Eje del joystick
@@ -109,10 +110,6 @@ def aplicar_pwm(porcentaje):
     compuerta.angle = angulo
 
 while True:
-
-    mqtt_client.loop() 
-    publish()  
-
     # --- Chequear emergencia ---
     if not inclinacion.value:  # Sensor detecta inclinación
         modo_emergencia = True
@@ -120,6 +117,8 @@ while True:
         led_verde.value = False
         rele.value = False  # Apagar extractor
         aplicar_pwm(0)      # Cerrar compuerta
+        print("🚨 Emergencia detectada: cabina inclinada. Sistema detenido.")
+        time.sleep(0.5)
         continue
     else:
         modo_emergencia = False
@@ -132,6 +131,40 @@ while True:
     # --- Lectura de joystick ---
     valor_manual = leer_joystick()
 
-    aplicar_pwm(valor_manual)
+    # --- Lectura de UART (setpoint automático) ---
+    data = uart.read()
+    if data:
+        try:
+            setpoint = int(data.decode().strip())
+            print(f"📡 Nuevo setpoint recibido por UART: {setpoint}%")
+        except:
+            print("⚠️ Error leyendo UART")
 
-    time.sleep(0.05)
+    # --- Lectura de entrada USB (desde consola de Thonny) ---
+    if supervisor.runtime.serial_bytes_available:
+        try:
+            entrada_usb = input().strip()
+            if entrada_usb != "":
+                setpoint = int(entrada_usb)
+                print(f"💻 Nuevo setpoint recibido por USB: {setpoint}%")
+        except:
+            print("⚠️ Valor inválido en consola USB")
+
+    # --- Prioridades ---
+
+    reposo = 50
+    margen = 10
+
+    if abs(valor_manual - reposo) > margen:  # Modo manual si se detecta movimiento
+        aplicar_pwm(valor_manual)
+        modo = "Manual"
+        valor_usado = valor_manual
+    else:
+        aplicar_pwm(setpoint)
+        modo = "Automático"
+        valor_usado = setpoint
+
+    # --- Monitoreo serial ---
+    print(f"Modo: {modo} | Joystick: {valor_manual}% | Setpoint: {setpoint}% | Aplicado: {valor_usado}%")
+
+    time.sleep(0.1)
