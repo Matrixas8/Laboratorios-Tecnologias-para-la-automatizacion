@@ -16,7 +16,7 @@ from adafruit_motor import servo
 SSID = "Wifi"  # revisa que no tenga doble espacio
 PASSWORD = "contraseña-wifi"
 BROKER = "ipv4 del broker"
-NOMBRE_EQUIPO = "Punteros_Locos"
+NOMBRE_EQUIPO = "punteros_locos"
 DISCOVERY_TOPIC = "descubrir"
 TOPIC = f"sensores/{NOMBRE_EQUIPO}"
 
@@ -40,7 +40,6 @@ def connect(client, userdata, flags, rc):
         "equipo": NOMBRE_EQUIPO,
         "magnitudes": ["inclinacion", "presion"]
     }))
-    mqtt_client.publish("sensores/inclinacion/inclinacion", "Hola desde Pico")
 
 mqtt_client = MQTT.MQTT(
     broker=BROKER,
