@@ -33,7 +33,7 @@ uart = busio.UART(board.GP0, board.GP1, baudrate=9600, timeout=0.1)
 
 # --- Variables ---
 modo_emergencia = False
-setpoint_manual = None   # Valor fijo de apertura definido por usuario
+setpoint_manual = None   # Valor fijo de apertura ingresado por serial
 valor_automatico = 0
 
 def leer_sensor_vapor():

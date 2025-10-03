@@ -2,11 +2,12 @@
 
 <img width="711" height="403" alt="image" src="https://github.com/Matrixas8/Laboratorios-Tecnologias-para-la-automatizacion/blob/main/lab-diagrama_bb.jpg" />
 
-## Escenario ejemplo: cabina móvil de pintura que usan en un taller.
+## Escenario: cabina móvil de pintura que usan en un taller.
 
 En las cabinas hay una compuerta que regula la apertura para evacuar vapores, y se cuenta con un sistema de ventilación que evita la acumulación de partículas de pintura.
-La compuerta se abre o se cierra según el valor de presión de los vapores.
+La compuerta se controla de forma automática a través de un sensor de concentración de vapor, que mide en tiempo real la cantidad presente en el interior de la cabina y envía la señal al sistema para definir el nivel de apertura requerido.
 Como la cabina se desplaza por todo el taller, es importante asegurarse de que no quede inclinada por irregularidades del piso. Si esto ocurre, se activa un LED rojo y el relé corta el extractor inmediatamente.
+
 
 ## El LED bicolor indica el estado del sistema:
 
@@ -21,13 +22,21 @@ Modos de operación de la compuerta:
 Sensor de presión: un sensor de presión controla el valor de apertura de la compuerta según este valor sea mayor o menor.
 
 
-## Cambio de estado y prioridades:
+# Detalle del funcionamiento del setpoint y control de la compuerta:
 
-Emergencia: Siempre tiene máxima prioridad.
+### Modos de operación de la compuerta:
 
+La compuerta recibe un valor de apertura proporcional a la concentración de vapor medida.
+El sistema traduce la señal del sensor en un porcentaje de apertura deseado de la compuerta.
+    Ejemplo: un setpoint del 50% abrirá la compuerta a la mitad de su recorrido.
+El estado normal de presión suele ser un 50%, si baja o sube de ese valor la compuerta se abrirá o cerrará para mantener estable el flujo.
+Fuera del estado normal se habilita un control manual por setpoint 
+
+### Cambio de estado y prioridades:
+
+Emergencia: siempre tiene máxima prioridad.
 Si la cabina detecta inclinación irregular, se enciende el LED rojo y el relé corta inmediatamente el extractor.
-En este estado, la compuerta no responde al sensor de presión hasta que se resuelva la emergencia.
-
+En este estado, la compuerta no responde al setpoint ni al sensor de presión hasta que se resuelva la emergencia.
 
 ## Control de la compuerta vía PWM:
 
@@ -39,7 +48,6 @@ Por ejemplo:
 100% apertura → 180º PWM
 
 Esto garantiza un control preciso de la posición de la compuerta.
-
 
 ## Indicadores y seguridad:
 
