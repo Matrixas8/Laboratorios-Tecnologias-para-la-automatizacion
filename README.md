@@ -15,12 +15,6 @@ Verde → Operación normal
 Rojo → Emergencia
 
 El relé controla el encendido y apagado del extractor, mientras que el conversor de corriente utiliza señal PWM para ajustar la posición de la compuerta según el valor de presión.
-Detalle del funcionamiento del setpoint y control de la compuerta
-Modos de operación de la compuerta:
-
-
-Sensor de presión: un sensor de presión controla el valor de apertura de la compuerta según este valor sea mayor o menor.
-
 
 # Detalle del funcionamiento del setpoint y control de la compuerta:
 
