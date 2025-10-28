@@ -110,7 +110,13 @@ def aplicar_pwm(porcentaje):
     compuerta.angle = angulo
 
 while True:
+    
+    mqtt_client.loop()
+    publish()
+    time.sleep(0.1)
+    
     # --- Chequear emergencia ---
+    
     if not inclinacion.value:  
         modo_emergencia = True
         led_rojo.value = True
