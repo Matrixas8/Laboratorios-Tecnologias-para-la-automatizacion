@@ -62,9 +62,9 @@ def publish():
             mqtt_client.publish(temp_topic, str(inclinacion.value).lower())
             
             joy_topic = f"{TOPIC}/presion"
-            mqtt_client.publish(joy_topic, str(leer_joystick()))
+            mqtt_client.publish(joy_topic, str(leer_sensor_vapor()))
 
-            print(f"Publicado -> inclinacion: {inclinacion.value}, presion: {leer_joystick()}")
+            print(f"Publicado -> inclinacion: {inclinacion.value}, presion: {leer_sensor_vapor()}")
             LAST_PUB = now
         except Exception as e:
             print(f"Error publicando MQTT: {e}")
